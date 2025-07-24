@@ -3,11 +3,15 @@ require('./config/data')
 const app = express();
 const user=require('./model/user')
 
+app.use(express.json())
+
 app.post("/singup", async(req , res)=>{
+  
+   console.log(req.body)
     const users=new user({
         firstName :"Maksud",
         LastName :"Alam",
-        email:"maksud.patna@123",
+        email:"maksud.patna@123", 
        
 
     });
