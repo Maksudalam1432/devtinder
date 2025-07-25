@@ -1,23 +1,53 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
+
 
 const userSchema = new mongoose.Schema({
   firstName: {
     type: String,
+    required:true,
   },
   LastName: {
     type: String,
   },
   email: {
-    type: String,
+     type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    validate(value) {
+      if (!validator.isEmail(value)) {
+        throw new Error("Invalid email ID: " + value);
+      }
+    }
   },
   password: {
     type: String,
-  },
+    requires:true,
+    trim:true,
+     validate(value) {
+      if (!validator.isStrongPassword(value)) {
+        throw new Error("please strong password length 8  : " + value);
+      }
+    }
+  
+      },
   age: {
     type: Number,
   },
   gender: {
     type: String,
+  },
+  photurl: {
+    type: String,
+    default:"https://imgs.search.brave.com/eut7FrXlDo2vX5pEuTh8WmmpWp4hdAlCzfzCbSNjvMA/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvY29tbW9ucy90/aHVtYi9iL2I2L0lt/YWdlX2NyZWF0ZWRf/d2l0aF9hX21vYmls/ZV9waG9uZS5wbmcv/OTYwcHgtSW1hZ2Vf/Y3JlYXRlZF93aXRo/X2FfbW9iaWxlX3Bo/b25lLnBuZw"
+  },
+  about: {
+    type: String,
+    default:"defauly message "
+  },
+  skills: {
+    type: [String],
   },
 });
 

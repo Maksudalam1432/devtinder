@@ -99,6 +99,17 @@ app.patch("/user", async (req, res) => {
   const data = req.body;
 
   try {
+
+    const Allow_updates = ["skills", "photurl", "gender", "age", "about",];
+    
+    const isUpdate = Object.keys(data)
+      .filter(key => key !== "userid")
+      .every(key => Allow_updates.includes(key));
+
+    if (!isUpdate) {
+      throw new Error("Update not allowed"); // 
+    }
+
     const updatedUser = await user.findByIdAndUpdate({ _id:usersid},data); 
 
     if (!updatedUser) {
