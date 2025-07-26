@@ -2,6 +2,8 @@ const express = require("express");
 require('./config/data')
 const app = express();
 const user=require('./model/user')
+const {validatorsingupdata}=require("./utills/validation")
+const bcrypt=require("bcrypt")
 
 app.use(express.json())
 
@@ -19,17 +21,31 @@ app.use(express.json())
 // })
 app.post("/singup", async(req , res)=>{
   
-   console.log(req.body)
-    const { firstName,LastName, email } = req.body;
+  //  console.log(rconst {password}=req.body;
 
-    const users = new user({
-     firstName,
-     LastName,
-      email
       
-    })
-    await users.save()
-    res.send("succesfully data  connect!")
+  
+    try{
+      validatorsingupdata(req)
+
+        const {firstName,LastName,email,password}=req.body
+         const passwordHash = await bcrypt.hash(password, 10); 
+    console.log("Hashed Password:", passwordHash);
+
+     
+      const users=new user({
+        firstName,
+        LastName,
+        email,
+        password:passwordHash,
+      });
+
+      await users.save()
+      res.send("succesfully data  connect!")
+    }
+    catch(err){
+      res.status(400).send("Error :"+err.message)
+    }
 })
 
  // find and findone
