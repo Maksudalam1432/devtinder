@@ -47,6 +47,32 @@ app.post("/singup", async(req , res)=>{
       res.status(400).send("Error :"+err.message)
     }
 })
+//login page
+
+  app.post("/login", async (req ,res)=>{
+      
+    try{
+        const {email, password}=req.body;
+    const users=await user.findOne( {email:email});
+     
+    if(!users){
+        throw new Error("Invaliud credentials ")
+    }
+    const ispassword= await bcrypt.compare(password,users.password);
+    if(ispassword){
+       res.send("login succesfully")
+    }
+ else{
+    throw new Error ("Invaliud credentials ")
+ }
+}
+  
+ catch(err){
+   res.status(400).send("ERROR" + err.message)
+      
+    }
+
+  })
 
  // find and findone
 
