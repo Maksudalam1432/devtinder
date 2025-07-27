@@ -4,8 +4,17 @@ const app = express();
 const user=require('./model/user')
 const {validatorsingupdata}=require("./utills/validation")
 const bcrypt=require("bcrypt")
+const cookieParser = require("cookie-parser");
+const jwt=require("jsonwebtoken")
+
+app.use(cookieParser());
+
+
+ 
 
 app.use(express.json())
+
+
 
 // app.post("/singup", async(req , res)=>{
   
@@ -60,7 +69,10 @@ app.post("/singup", async(req , res)=>{
     }
     const ispassword= await bcrypt.compare(password,users.password);
     if(ispassword){
+         const token=await jwt.sign({_id:users._id},"maksud@122#789")
+      res.cookie("token",token)
        res.send("login succesfully")
+       console.log(token)
     }
  else{
     throw new Error ("Invaliud credentials ")
@@ -73,6 +85,33 @@ app.post("/singup", async(req , res)=>{
     }
 
   })
+
+     
+  //profile
+app.get("/profile", async (req , res)=>{
+ try{
+   const cookies = req.cookies;
+  const {token}=cookies;
+  if(!token){
+     throw new Error("invalid token")
+  }
+  const decodemess=await jwt.verify(token,"maksud@122#789")
+  const {_id}=decodemess;
+  console.log("loggesd user id is ",_id)
+  // console.log(cookies);
+  const users=await user.findById(_id)
+  if(!users){
+    throw new Error("user does not exist")
+  }
+  res.send(users)
+ }
+  catch(err){
+     res.status(400).send("ERROR "+ err.message)
+  }
+});
+
+
+
 
  // find and findone
 
