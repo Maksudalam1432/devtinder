@@ -6,6 +6,8 @@ const {validatorsingupdata}=require("./utills/validation")
 const bcrypt=require("bcrypt")
 const cookieParser = require("cookie-parser");
 const jwt=require("jsonwebtoken")
+const {useauth}=require("./middlewares/auth")
+
 
 app.use(cookieParser());
 
@@ -58,58 +60,50 @@ app.post("/singup", async(req , res)=>{
 })
 //login page
 
-  app.post("/login", async (req ,res)=>{
-      
-    try{
-        const {email, password}=req.body;
-    const users=await user.findOne( {email:email});
-     
-    if(!users){
-        throw new Error("Invaliud credentials ")
-    }
-    const ispassword= await bcrypt.compare(password,users.password);
-    if(ispassword){
-         const token=await jwt.sign({_id:users._id},"maksud@122#789")
-      res.cookie("token",token)
-       res.send("login succesfully")
-       console.log(token)
-    }
- else{
-    throw new Error ("Invaliud credentials ")
- }
-}
-  
- catch(err){
-   res.status(400).send("ERROR" + err.message)
-      
+ app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const users = await user.findOne({ email });
+
+    if (!users) {
+      throw new Error("Invalid credentials");
     }
 
-  })
+    const isPasswordValid = await users.validatePassword(password);
 
-     
-  //profile
-app.get("/profile", async (req , res)=>{
- try{
-   const cookies = req.cookies;
-  const {token}=cookies;
-  if(!token){
-     throw new Error("invalid token")
-  }
-  const decodemess=await jwt.verify(token,"maksud@122#789")
-  const {_id}=decodemess;
-  console.log("loggesd user id is ",_id)
-  // console.log(cookies);
-  const users=await user.findById(_id)
-  if(!users){
-    throw new Error("user does not exist")
-  }
-  res.send(users)
- }
-  catch(err){
-     res.status(400).send("ERROR "+ err.message)
+    if (!isPasswordValid) {
+      throw new Error("Invalid credentials");
+    }
+
+    const token = await users.getJWT();
+    res.cookie("token", token);
+    res.send("Login successful");
+    console.log(token);
+  } catch (err) {
+    res.status(400).send("ERROR: " + err.message);
   }
 });
 
+     
+  //profile
+app.get("/profile", useauth, async (req, res) => {
+  try {
+    const users = req.user;
+    res.send(users);
+  } catch (err) {
+    res.status(400).send("ERROR " + err.message);
+  }
+});
+
+
+app.post("/sendconnectionreq", useauth, async (req, res) => {
+  
+    const user = req.user;
+  
+    console.log("sending a connection request")
+    res.send(user.firstName + "send the connection request")
+      
+});
 
 
 
