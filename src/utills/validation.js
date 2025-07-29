@@ -16,6 +16,23 @@ const validatorsingupdata = (req) => {
     }
 };
 
+const validatoresedit = (req) => {
+  const alloweditfield = [
+    "firstName",
+    "lastName",
+    "email",
+    "password",
+    "photourl",
+    "about",
+    "skills",
+  ];
+
+  return Object.keys(req.body).every((field) =>
+    alloweditfield.includes(field)
+  );
+};
+
 module.exports={
     validatorsingupdata,
+    validatoresedit,
 }
